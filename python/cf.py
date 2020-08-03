@@ -82,7 +82,3 @@ def lrss(seq):
         if len(candidate) > len(longest):
             longest = candidate
     return longest
-
-
-
-

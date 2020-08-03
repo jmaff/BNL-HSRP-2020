@@ -3,11 +3,9 @@ import math
 import matplotlib.pyplot as plt
 
 
-# A slightly modified implementation of DFT from the powerpoint - after viewing some other implementations online I
-# made some changes to the original version to slim it down a bit, although I'm not sure if some of the changes would
-# impact the performance of the transform (such as "ignoring" x data)
-# some equations from https://www.youtube.com/watch?v=mkGsMWi_j4Q
-# This returns a list of the same length as data consisting of 2-tuples with the cos and sin components from the dft
+# A slightly modified implementation of DFT from the powerpoint - doesn't take in x-data and instead uses
+# converts ordinal numbers to 0 to 2*pi since all the data I'm dealing with is ordinal
+# This returns a list of the same length as data consisting of 2-tuples with the cos and sin terms from the dft
 def dft(data):
     transform = []
     # only can create frequency bins up to this limit
@@ -21,44 +19,66 @@ def dft(data):
             f_cos += data[n]*math.cos((2*math.pi*k*n)/len(data))
             f_sin += data[n]*math.sin((2*math.pi*k*n)/len(data))
 
-        f_cos = 2*f_cos/len(data)
-        f_sin = 2 * f_sin / len(data)
+        if k > 0:
+            f_cos = 2*f_cos/len(data)
+            f_sin = 2 * f_sin / len(data)
+        else:
+            f_cos = f_cos / len(data)
+            f_sin = f_sin / len(data)
+
         transform.append((f_cos, f_sin))
+
     return transform
 
 
-# Returns a list of the amplitudes of the frequency bins (still need to understand why this appears so similar to the
-# graph of the cos and sin data)
-def dft_amp(transform):
-    amp = []
+# Returns power data
+def dft_power(transform):
+    power = []
     for term in transform:
-        amp.append(math.sqrt(term[0]**2+term[1]**2))
-    return amp
+        power.append(math.sqrt(term[0]**2+term[1]**2))
+    return power
 
 
-# data = [0, 0.707, 1, 0.707, 0, -0.707, -1, -0.707]  # 8 data points sampled from a sine wave
+def plot_dft(transform, pos, title):
+    # extract the terms from the result of dft
+    plt.subplot(*pos)
+    plt.title(title)
+    cos_terms = [term[0] for term in transform]
+    sin_terms = [term[1] for term in transform]
 
-# generate data
-num_samples = 100
-dx = 2*math.pi/num_samples
+    x_ord = [i for i in range(len(transform))]
+    plt.bar(x_ord, cos_terms, color='blue', label='cos')
+    plt.bar(x_ord, sin_terms, color='red', label='sin')
+    plt.legend(loc='upper right')
 
-data = []
-x = 0
-while num_samples > 0:
-    data.append(29*math.cos(3*x)+7*math.cos(19*x)+17*math.sin(11*x)+2*math.sin(31*x))
-    x += dx
-    num_samples -= 1
 
-transform = dft(data)
-amps = dft_amp(transform)
+def idft(transform, sample_count):
+    y_est = []
+    for i in range(sample_count):
+        x = (2 * math.pi * i) / sample_count
+        y = 0
+        for n in range(len(transform)):
+            y += transform[n][0] * math.cos(n * x)
+            y += transform[n][1] * math.sin(n * x)
+        y_est.append(y)
 
-# extract the terms from the result of dft
-cos_terms = [term[0] for term in transform]
-sin_terms = [term[1] for term in transform]
+    return y_est
 
-# TODO: adjust graph axes and labeling, add power graph
-x_ord = [i for i in range(len(transform))]
-plt.bar(x_ord, cos_terms, color='blue')
-plt.bar(x_ord, sin_terms, color='red')
 
-plt.show()
+# num_samples = 100
+# dx = 2*math.pi/num_samples
+#
+# data = []
+# x = 0
+# while num_samples > 0:
+#     # data.append(29*math.cos(3*x)+7*math.cos(19*x)+17*math.sin(11*x)+2*math.sin(31*x))
+#     data.append(math.sin(x))
+#     x += dx
+#     num_samples -= 1
+#
+# transform = dft(data)
+# reconstructed = idft(transform, len(data))
+#
+#
+# plt.plot(reconstructed)
+# plt.show()
