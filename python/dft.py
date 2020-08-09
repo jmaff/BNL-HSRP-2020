@@ -52,6 +52,16 @@ def plot_dft(transform, pos, title):
     plt.legend(loc='upper right')
 
 
+def plot_dft_power(transform, pos, title):
+    # extract the terms from the result of dft
+    plt.subplot(*pos)
+    plt.title(title)
+    power = dft_power(transform)
+
+    x_ord = [i for i in range(len(transform))]
+    plt.bar(x_ord, power, color='green')
+
+
 def idft(transform, sample_count):
     y_est = []
     for i in range(sample_count):
@@ -64,6 +74,14 @@ def idft(transform, sample_count):
 
     return y_est
 
+
+def idft_get(transform, i, sample_count):
+    x = (2 * math.pi * i) / sample_count
+    y = 0
+    for n in range(len(transform)):
+        y += transform[n][0] * math.cos(n * x)
+        y += transform[n][1] * math.sin(n * x)
+    return y
 
 # num_samples = 100
 # dx = 2*math.pi/num_samples

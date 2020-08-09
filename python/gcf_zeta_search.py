@@ -42,8 +42,9 @@ def write_progress(a0, b0, a, b, c, d, e, delta):
     with open('gcf-search-progress.txt', 'a') as f:
         f.write(f"a0:{a0} b0:{b0} A:{a} B:{b} C:{c} D:{d} E:{e} Delta:{delta}\n")
 
-start = 2
-end = 4
+
+start = 5
+end = 10
 load_zeros()
 start_time = time.time()
 
